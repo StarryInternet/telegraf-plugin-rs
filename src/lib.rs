@@ -210,6 +210,14 @@ pub fn link_to_go(args: TokenStream, input: TokenStream) -> TokenStream {
             self::__hidden::add_generic(management, tags, fields, timestamp, add_gauge);
         }
 
+        fn AddCounter(
+            management: String,
+            tags: std::collections::HashMap<String, String>,
+            fields: std::collections::HashMap<String, go_value>,
+            timestamp: Option<std::time::SystemTime>
+        ) {
+            self::__hidden::add_generic(management, tags, fields, timestamp, add_counter);
+        }
     };
     let c_prelude: proc_macro2::TokenStream = syn::parse_str(include_str!("gen.rs")).unwrap();
 
