@@ -127,60 +127,89 @@ pub fn link_to_go(args: TokenStream, input: TokenStream) -> TokenStream {
             }
         }
 
+        mod __hidden {
+            pub fn add_generic(
+                management: String,
+                tags: std::collections::HashMap<String, String>,
+                fields: std::collections::HashMap<String, super::go_value>,
+                timestamp: Option<std::time::SystemTime>,
+                add_func: unsafe extern "C" fn(
+                    measurment: *mut libc::c_char,
+                    tags: *mut super::tag,
+                    tags_size: libc::c_int,
+                    fields: *mut super::field,
+                    fields_size: libc::c_int,
+                    unix_sec: i64,
+                    unix_nsec: i64)
+            ) {
+                let management = std::ffi::CString::new(management).unwrap();
+
+                let tags = tags
+                    .into_iter()
+                    .map(|(k, v)| {
+                        (
+                            std::ffi::CString::new(k).expect("Not a C string"),
+                            std::ffi::CString::new(v).expect("Not a C string")
+                        )
+                    })
+                    .collect::<std::collections::HashMap<std::ffi::CString, std::ffi::CString>>();
+                let mut tags_list = Vec::with_capacity(tags.len());
+                for (key, value) in tags.iter() {
+                    tags_list.push(super::tag {
+                        key: key.as_ptr() as *mut _,
+                        value: value.as_ptr() as *mut _
+                    })
+                }
+
+                let fields = fields
+                    .into_iter()
+                    .map(|(k, v)| (std::ffi::CString::new(k).expect("Not a C string"), v))
+                    .collect::<std::collections::HashMap<std::ffi::CString, super::go_value>>();
+                let mut fields_list = Vec::with_capacity(fields.len());
+                for (key, &value) in fields.iter() {
+                    fields_list.push(super::field {
+                        key: key.as_ptr() as *mut _,
+                        value
+                    })
+                }
+
+                let unix_time = timestamp
+                    .map(|timestamp| timestamp.duration_since(std::time::UNIX_EPOCH)
+                         .expect("Time went backwards"))
+                    .unwrap_or_else(|| std::time::Duration::new(0, 0));
+
+                unsafe {
+                    add_func(
+                        management.as_ptr() as *mut _,
+                        tags_list.as_mut_ptr(),
+                        tags_list.len() as i32,
+                        fields_list.as_mut_ptr(),
+                        fields_list.len() as i32,
+                        unix_time.as_secs() as i64,
+                        unix_time.as_nanos() as i64
+                    )
+                }
+            }
+        }
+
         fn AddField(
             management: String,
             tags: std::collections::HashMap<String, String>,
             fields: std::collections::HashMap<String, go_value>,
             timestamp: Option<std::time::SystemTime>
         ) {
-            let management = std::ffi::CString::new(management).unwrap();
-
-            let tags = tags
-                .into_iter()
-                .map(|(k, v)| {
-                    (
-                        std::ffi::CString::new(k).expect("Not a C string"),
-                        std::ffi::CString::new(v).expect("Not a C string")
-                    )
-                })
-                .collect::<std::collections::HashMap<std::ffi::CString, std::ffi::CString>>();
-            let mut tags_list = Vec::with_capacity(tags.len());
-            for (key, value) in tags.iter() {
-                tags_list.push(tag {
-                    key: key.as_ptr() as *mut _,
-                    value: value.as_ptr() as *mut _
-                })
-            }
-
-            let fields = fields
-                .into_iter()
-                .map(|(k, v)| (std::ffi::CString::new(k).expect("Not a C string"), v))
-                .collect::<std::collections::HashMap<std::ffi::CString, go_value>>();
-            let mut fields_list = Vec::with_capacity(fields.len());
-            for (key, &value) in fields.iter() {
-                fields_list.push(field {
-                    key: key.as_ptr() as *mut _,
-                    value
-                })
-            }
-
-            let unix_time = timestamp
-                .map(|timestamp| timestamp.duration_since(std::time::UNIX_EPOCH)
-                     .expect("Time went backwards"))
-                .unwrap_or_else(|| std::time::Duration::new(0, 0));
-
-            unsafe {
-                add_field(
-                    management.as_ptr() as *mut _,
-                    tags_list.as_mut_ptr(),
-                    tags_list.len() as i32,
-                    fields_list.as_mut_ptr(),
-                    fields_list.len() as i32,
-                    unix_time.as_secs() as i64,
-                    unix_time.as_nanos() as i64
-                )
-            }
+            self::__hidden::add_generic(management, tags, fields, timestamp, add_field);
         }
+
+        fn AddGauge(
+            management: String,
+            tags: std::collections::HashMap<String, String>,
+            fields: std::collections::HashMap<String, go_value>,
+            timestamp: Option<std::time::SystemTime>
+        ) {
+            self::__hidden::add_generic(management, tags, fields, timestamp, add_gauge);
+        }
+
     };
     let c_prelude: proc_macro2::TokenStream = syn::parse_str(include_str!("gen.rs")).unwrap();
 
