@@ -1,0 +1,12 @@
+[package]
+name = "telegraf-plugin-example"
+version = "0.1.0"
+authors = ["Timidger <pcarpenter@starry.com>"]
+edition = "2018"
+
+[lib]
+crate_type = ["staticlib"]
+
+[dependencies]
+libc = "0.2"
+telegraf-plugin = { path = "../" }
