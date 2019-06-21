@@ -8,6 +8,7 @@ script = [
 cp target/debug/libtelegraf_plugin_example.a ./plugin.a
 cp telegraf-plugin-go-glue/lib.go ./
 cp telegraf-plugin-go-glue/c_api.h ./
+rm plugin.so
 '''
 ]
 

@@ -38,10 +38,10 @@ macro_rules! map(
 
 #[link_to_go("Description of the plugin", "<sample_config>")]
 fn collect_metric() {
-    AddField(
-        "rust-metric".into(),
-        map! {"rust_key".into() => "rust_value".into()},
-        map! {"rust_field".into() => 100000000.into()},
-        None
-    )
+    let fields = map! {"rust_key".into() => "rust_value".into()};
+    let tags = map! {"rust_field".into() => 100000000.into()};
+    AddField("rust-field".into(), fields.clone(), tags.clone(), None);
+    AddGauge("rust-gauge".into(), fields.clone(), tags.clone(), None);
+    AddCounter("rust-counter".into(), fields.clone(), tags.clone(), None);
+    AddSummary("rust-summary".into(), fields.clone(), tags.clone(), None);
 }
