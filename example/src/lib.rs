@@ -36,13 +36,31 @@ macro_rules! map(
     };
 );
 
+type MeasurementFunc = fn(
+    std::string::String,
+    std::collections::HashMap<std::string::String, std::string::String>,
+    std::collections::HashMap<std::string::String, go_value>,
+    std::option::Option<std::time::SystemTime>
+);
+
 #[link_to_go("Description of the plugin", "<sample_config>")]
 fn collect_metric() {
-    let fields = map! {"rust_key".into() => "rust_value".into()};
-    let tags = map! {"rust_field".into() => 100000000.into()};
-    AddField("rust-field".into(), fields.clone(), tags.clone(), None);
-    AddGauge("rust-gauge".into(), fields.clone(), tags.clone(), None);
-    AddCounter("rust-counter".into(), fields.clone(), tags.clone(), None);
-    AddSummary("rust-summary".into(), fields.clone(), tags.clone(), None);
-    AddHistogram("rust-histogram".into(), fields.clone(), tags.clone(), None)
+    let funcs: [(_, MeasurementFunc); 5] = [
+        ("rust-field", AddField as _),
+        ("rust-gauge", AddGauge as _),
+        ("rust-counter", AddCounter as _),
+        ("rust-summary", AddSummary as _),
+        ("rust-histogram", AddHistogram as _)
+    ];
+    for (measurement, add_func) in funcs.into_iter() {
+        let fields = map! {"rust_key".into() => "rust_value".into()};
+        let tags = map! {
+            "int".into() => 100i8.into(),
+            "uint".into() => 255u8.into(),
+            "double".into() => 3.1459.into(),
+            "bool".into() => (!false).into(),
+            "string".into() => "hello world".into()
+        };
+        add_func(measurement.to_string(), fields, tags, None)
+    }
 }

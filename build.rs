@@ -26,6 +26,8 @@ fn main() {
         .derive_debug(true)
         .derive_default(true)
         .derive_copy(true)
+        // NOTE This is due to implementing `Drop` in the macro.
+        .no_copy("go_value")
         .generate_comments(true)
         .blacklist_function("sample_config")
         .blacklist_function("description")

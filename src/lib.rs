@@ -21,7 +21,7 @@
 // SOFTWARE.
 //
 // Software written by Preston Carpenter <pcarpenter@starry.com>
-#![recursion_limit = "264"]
+#![recursion_limit = "1024"]
 
 extern crate proc_macro;
 
@@ -116,12 +116,167 @@ pub fn link_to_go(args: TokenStream, input: TokenStream) -> TokenStream {
             int_: libc::c_int
         }
 
+        impl go_value {
+            unsafe fn clone(&self) -> Self {
+                go_value {
+                    type_: self.type_,
+                    value: self.value
+                }
+            }
+        }
+
+        impl From<i8> for go_value {
+            fn from(num: i8) -> Self {
+                go_value {
+                    type_: go_value_TYPE_INT,
+                    value: go_value__bindgen_ty_2 {
+                        int_: num as i64
+                    }
+                }
+            }
+        }
+
+        impl From<i16> for go_value {
+            fn from(num: i16) -> Self {
+                go_value {
+                    type_: go_value_TYPE_INT,
+                    value: go_value__bindgen_ty_2 {
+                        int_: num as i64
+                    }
+                }
+            }
+        }
+
         impl From<i32> for go_value {
             fn from(num: i32) -> Self {
                 go_value {
                     type_: go_value_TYPE_INT,
                     value: go_value__bindgen_ty_2 {
-                        int_: i32::from(num)
+                        int_: num as i64
+                    }
+                }
+            }
+        }
+
+        impl From<i64> for go_value {
+            fn from(num: i64) -> Self {
+                go_value {
+                    type_: go_value_TYPE_INT,
+                    value: go_value__bindgen_ty_2 {
+                        int_: num
+                    }
+                }
+            }
+        }
+
+        impl From<u8> for go_value {
+            fn from(num: u8) -> Self {
+                go_value {
+                    type_: go_value_TYPE_UINT,
+                    value: go_value__bindgen_ty_2 {
+                        uint_: num as u64
+                    }
+                }
+            }
+        }
+
+        impl From<u16> for go_value {
+            fn from(num: u16) -> Self {
+                go_value {
+                    type_: go_value_TYPE_UINT,
+                    value: go_value__bindgen_ty_2 {
+                        uint_: num as u64
+                    }
+                }
+            }
+        }
+
+        impl From<u32> for go_value {
+            fn from(num: u32) -> Self {
+                go_value {
+                    type_: go_value_TYPE_UINT,
+                    value: go_value__bindgen_ty_2 {
+                        uint_: num as u64
+                    }
+                }
+            }
+        }
+
+        impl From<u64> for go_value {
+            fn from(num: u64) -> Self {
+                go_value {
+                    type_: go_value_TYPE_UINT,
+                    value: go_value__bindgen_ty_2 {
+                        uint_: num
+                    }
+                }
+            }
+        }
+
+        impl From<f32> for go_value {
+            fn from(num: f32) -> Self {
+                go_value {
+                    type_: go_value_TYPE_FLOAT,
+                    value: go_value__bindgen_ty_2 {
+                        double_: num as f64
+                    }
+                }
+            }
+        }
+
+        impl From<f64> for go_value {
+            fn from(num: f64) -> Self {
+                go_value {
+                    type_: go_value_TYPE_FLOAT,
+                    value: go_value__bindgen_ty_2 {
+                        double_: num as f64
+                    }
+                }
+            }
+        }
+
+        impl From<bool> for go_value{
+            fn from(val: bool) -> Self {
+                go_value {
+                    type_: go_value_TYPE_BOOL,
+                    value: go_value__bindgen_ty_2 {
+                        bool_: val
+                    }
+                }
+            }
+        }
+
+        impl From<String> for go_value {
+            fn from(string: String) -> Self {
+                let c_string = std::ffi::CString::new(string)
+                    .expect("Could not convert string to CString");
+                go_value {
+                    type_: go_value_TYPE_STRING,
+                    value: go_value__bindgen_ty_2 {
+                        string_: c_string.into_raw()
+                    }
+                }
+            }
+        }
+
+        impl From<&str> for go_value {
+            fn from(string: &str) -> Self {
+                let c_string = std::ffi::CString::new(string)
+                    .expect("Could not convert string to CString");
+                go_value {
+                    type_: go_value_TYPE_STRING,
+                    value: go_value__bindgen_ty_2 {
+                        string_: c_string.into_raw()
+                    }
+                }
+            }
+        }
+
+        impl Drop for go_value {
+            fn drop(&mut self) {
+                unsafe {
+                    if self.type_ == go_value_TYPE_STRING {
+                        std::ffi::CString::from_raw(self.value.string_);
                     }
                 }
             }
@@ -166,10 +321,16 @@ pub fn link_to_go(args: TokenStream, input: TokenStream) -> TokenStream {
                     .map(|(k, v)| (std::ffi::CString::new(k).expect("Not a C string"), v))
                     .collect::<std::collections::HashMap<std::ffi::CString, super::go_value>>();
                 let mut fields_list = Vec::with_capacity(fields.len());
-                for (key, &value) in fields.iter() {
+                for (key, value) in fields.iter() {
                     fields_list.push(super::field {
                         key: key.as_ptr() as *mut _,
-                        value
+                        // Clone is unsafe here because it could be a string, which duplicates
+                        // the char* we give.
+                        //
+                        // This is safe because you can't safely clone a go_value, so there's only two
+                        // copies here now, and we only drop it once because we will mem::forget
+                        // the fields next.
+                        value: unsafe { value.clone() }
                     })
                 }
 
@@ -189,6 +350,7 @@ pub fn link_to_go(args: TokenStream, input: TokenStream) -> TokenStream {
                         unix_time.as_nanos() as i64
                     )
                 }
+                let _ = fields_list.drain(..).map(std::mem::forget).collect::<Vec<_>>();
             }
         }
 
