@@ -350,7 +350,7 @@ pub fn link_to_go(args: TokenStream, input: TokenStream) -> TokenStream {
                         unix_time.as_nanos() as i64
                     )
                 }
-                let _ = fields_list.drain(..).map(std::mem::forget).collect::<Vec<_>>();
+                let _ = fields_list.drain(..).map(std::mem::forget).collect::<()>();
             }
         }
 
