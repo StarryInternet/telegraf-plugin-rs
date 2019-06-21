@@ -44,4 +44,5 @@ fn collect_metric() {
     AddGauge("rust-gauge".into(), fields.clone(), tags.clone(), None);
     AddCounter("rust-counter".into(), fields.clone(), tags.clone(), None);
     AddSummary("rust-summary".into(), fields.clone(), tags.clone(), None);
+    AddHistogram("rust-histogram".into(), fields.clone(), tags.clone(), None)
 }
