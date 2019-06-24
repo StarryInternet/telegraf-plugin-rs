@@ -308,6 +308,11 @@ pub fn link_to_go(args: TokenStream, input: TokenStream) -> TokenStream {
                     })
                 }
 
+                let unix_time = timestamp
+                    .map(|timestamp| timestamp.duration_since(std::time::UNIX_EPOCH)
+                         .expect("Time went backwards"))
+                    .unwrap_or_else(|| std::time::Duration::new(0, 0));
+
                 let fields = fields
                     .iter()
                     .map(|(k, v)| (std::ffi::CString::new(k.clone()).expect("Not a C string"), v))
@@ -325,11 +330,6 @@ pub fn link_to_go(args: TokenStream, input: TokenStream) -> TokenStream {
                         value: unsafe { (*value).clone() }
                     })
                 }
-
-                let unix_time = timestamp
-                    .map(|timestamp| timestamp.duration_since(std::time::UNIX_EPOCH)
-                         .expect("Time went backwards"))
-                    .unwrap_or_else(|| std::time::Duration::new(0, 0));
 
                 unsafe {
                     add_func(
