@@ -106,6 +106,8 @@ pub fn link_to_go(args: TokenStream, input: TokenStream) -> TokenStream {
     };
 
     let telegraf_api_decl: proc_macro2::TokenStream = parse_quote! {
+        pub use self::gen::go_value;
+
         impl go_value {
             unsafe fn clone(&self) -> Self {
                 go_value {
@@ -118,8 +120,8 @@ pub fn link_to_go(args: TokenStream, input: TokenStream) -> TokenStream {
         impl From<i8> for go_value {
             fn from(num: i8) -> Self {
                 go_value {
-                    type_: go_value_TYPE_INT,
-                    value: go_value__bindgen_ty_2 {
+                    type_: gen::go_value_TYPE_INT,
+                    value: gen::go_value__bindgen_ty_2 {
                         int_: num as i64
                     }
                 }
@@ -129,8 +131,8 @@ pub fn link_to_go(args: TokenStream, input: TokenStream) -> TokenStream {
         impl From<i16> for go_value {
             fn from(num: i16) -> Self {
                 go_value {
-                    type_: go_value_TYPE_INT,
-                    value: go_value__bindgen_ty_2 {
+                    type_: gen::go_value_TYPE_INT,
+                    value: gen::go_value__bindgen_ty_2 {
                         int_: num as i64
                     }
                 }
@@ -140,8 +142,8 @@ pub fn link_to_go(args: TokenStream, input: TokenStream) -> TokenStream {
         impl From<i32> for go_value {
             fn from(num: i32) -> Self {
                 go_value {
-                    type_: go_value_TYPE_INT,
-                    value: go_value__bindgen_ty_2 {
+                    type_: gen::go_value_TYPE_INT,
+                    value: gen::go_value__bindgen_ty_2 {
                         int_: num as i64
                     }
                 }
@@ -151,8 +153,8 @@ pub fn link_to_go(args: TokenStream, input: TokenStream) -> TokenStream {
         impl From<i64> for go_value {
             fn from(num: i64) -> Self {
                 go_value {
-                    type_: go_value_TYPE_INT,
-                    value: go_value__bindgen_ty_2 {
+                    type_: gen::go_value_TYPE_INT,
+                    value: gen::go_value__bindgen_ty_2 {
                         int_: num
                     }
                 }
@@ -162,8 +164,8 @@ pub fn link_to_go(args: TokenStream, input: TokenStream) -> TokenStream {
         impl From<u8> for go_value {
             fn from(num: u8) -> Self {
                 go_value {
-                    type_: go_value_TYPE_UINT,
-                    value: go_value__bindgen_ty_2 {
+                    type_: gen::go_value_TYPE_UINT,
+                    value: gen::go_value__bindgen_ty_2 {
                         uint_: num as u64
                     }
                 }
@@ -173,8 +175,8 @@ pub fn link_to_go(args: TokenStream, input: TokenStream) -> TokenStream {
         impl From<u16> for go_value {
             fn from(num: u16) -> Self {
                 go_value {
-                    type_: go_value_TYPE_UINT,
-                    value: go_value__bindgen_ty_2 {
+                    type_: gen::go_value_TYPE_UINT,
+                    value: gen::go_value__bindgen_ty_2 {
                         uint_: num as u64
                     }
                 }
@@ -184,8 +186,8 @@ pub fn link_to_go(args: TokenStream, input: TokenStream) -> TokenStream {
         impl From<u32> for go_value {
             fn from(num: u32) -> Self {
                 go_value {
-                    type_: go_value_TYPE_UINT,
-                    value: go_value__bindgen_ty_2 {
+                    type_: gen::go_value_TYPE_UINT,
+                    value: gen::go_value__bindgen_ty_2 {
                         uint_: num as u64
                     }
                 }
@@ -195,8 +197,8 @@ pub fn link_to_go(args: TokenStream, input: TokenStream) -> TokenStream {
         impl From<u64> for go_value {
             fn from(num: u64) -> Self {
                 go_value {
-                    type_: go_value_TYPE_UINT,
-                    value: go_value__bindgen_ty_2 {
+                    type_: gen::go_value_TYPE_UINT,
+                    value: gen::go_value__bindgen_ty_2 {
                         uint_: num
                     }
                 }
@@ -206,8 +208,8 @@ pub fn link_to_go(args: TokenStream, input: TokenStream) -> TokenStream {
         impl From<f32> for go_value {
             fn from(num: f32) -> Self {
                 go_value {
-                    type_: go_value_TYPE_FLOAT,
-                    value: go_value__bindgen_ty_2 {
+                    type_: gen::go_value_TYPE_FLOAT,
+                    value: gen::go_value__bindgen_ty_2 {
                         double_: num as f64
                     }
                 }
@@ -217,8 +219,8 @@ pub fn link_to_go(args: TokenStream, input: TokenStream) -> TokenStream {
         impl From<f64> for go_value {
             fn from(num: f64) -> Self {
                 go_value {
-                    type_: go_value_TYPE_FLOAT,
-                    value: go_value__bindgen_ty_2 {
+                    type_: gen::go_value_TYPE_FLOAT,
+                    value: gen::go_value__bindgen_ty_2 {
                         double_: num as f64
                     }
                 }
@@ -228,8 +230,8 @@ pub fn link_to_go(args: TokenStream, input: TokenStream) -> TokenStream {
         impl From<bool> for go_value{
             fn from(val: bool) -> Self {
                 go_value {
-                    type_: go_value_TYPE_BOOL,
-                    value: go_value__bindgen_ty_2 {
+                    type_: gen::go_value_TYPE_BOOL,
+                    value: gen::go_value__bindgen_ty_2 {
                         bool_: val
                     }
                 }
@@ -241,8 +243,8 @@ pub fn link_to_go(args: TokenStream, input: TokenStream) -> TokenStream {
                 let c_string = std::ffi::CString::new(string)
                     .expect("Could not convert string to CString");
                 go_value {
-                    type_: go_value_TYPE_STRING,
-                    value: go_value__bindgen_ty_2 {
+                    type_: gen::go_value_TYPE_STRING,
+                    value: gen::go_value__bindgen_ty_2 {
                         string_: c_string.into_raw()
                     }
                 }
@@ -254,8 +256,8 @@ pub fn link_to_go(args: TokenStream, input: TokenStream) -> TokenStream {
                 let c_string = std::ffi::CString::new(string)
                     .expect("Could not convert string to CString");
                 go_value {
-                    type_: go_value_TYPE_STRING,
-                    value: go_value__bindgen_ty_2 {
+                    type_: gen::go_value_TYPE_STRING,
+                    value: gen::go_value__bindgen_ty_2 {
                         string_: c_string.into_raw()
                     }
                 }
@@ -265,7 +267,7 @@ pub fn link_to_go(args: TokenStream, input: TokenStream) -> TokenStream {
         impl Drop for go_value {
             fn drop(&mut self) {
                 unsafe {
-                    if self.type_ == go_value_TYPE_STRING {
+                    if self.type_ == gen::go_value_TYPE_STRING {
                         std::ffi::CString::from_raw(self.value.string_);
                     }
                 }
@@ -276,13 +278,13 @@ pub fn link_to_go(args: TokenStream, input: TokenStream) -> TokenStream {
             pub fn add_generic<S: Into<String>>(
                 management: S,
                 tags: &std::collections::HashMap<String, String>,
-                fields: &std::collections::HashMap<String, super::go_value>,
+                fields: &std::collections::HashMap<String, super::gen::go_value>,
                 timestamp: Option<&std::time::SystemTime>,
                 add_func: unsafe extern "C" fn(
                     measurment: *mut libc::c_char,
-                    tags: *mut super::tag,
+                    tags: *mut super::gen::tag,
                     tags_size: libc::c_int,
-                    fields: *mut super::field,
+                    fields: *mut super::gen::field,
                     fields_size: libc::c_int,
                     unix_sec: i64,
                     unix_nsec: i64)
@@ -300,7 +302,7 @@ pub fn link_to_go(args: TokenStream, input: TokenStream) -> TokenStream {
                     .collect::<std::collections::HashMap<std::ffi::CString, std::ffi::CString>>();
                 let mut tags_list = Vec::with_capacity(tags.len());
                 for (key, value) in tags.iter() {
-                    tags_list.push(super::tag {
+                    tags_list.push(super::gen::tag {
                         key: key.as_ptr() as *mut _,
                         value: value.as_ptr() as *mut _
                     })
@@ -309,10 +311,10 @@ pub fn link_to_go(args: TokenStream, input: TokenStream) -> TokenStream {
                 let fields = fields
                     .iter()
                     .map(|(k, v)| (std::ffi::CString::new(k.clone()).expect("Not a C string"), v))
-                    .collect::<std::collections::HashMap<std::ffi::CString, &super::go_value>>();
+                    .collect::<std::collections::HashMap<std::ffi::CString, &super::gen::go_value>>();
                 let mut fields_list = Vec::with_capacity(fields.len());
                 for (key, value) in fields.iter() {
-                    fields_list.push(super::field {
+                    fields_list.push(super::gen::field {
                         key: key.as_ptr() as *mut _,
                         // Clone is unsafe here because it could be a string, which duplicates
                         // the char* we give.
@@ -350,7 +352,7 @@ pub fn link_to_go(args: TokenStream, input: TokenStream) -> TokenStream {
             fields: &std::collections::HashMap<String, go_value>,
             timestamp: Option<&std::time::SystemTime>
         ) {
-            self::__hidden::add_generic(management, tags, fields, timestamp, add_field);
+            self::__hidden::add_generic(management, tags, fields, timestamp, gen::add_field);
         }
 
         fn record_gauge<S: Into<String>>(
@@ -359,7 +361,7 @@ pub fn link_to_go(args: TokenStream, input: TokenStream) -> TokenStream {
             fields: &std::collections::HashMap<String, go_value>,
             timestamp: Option<&std::time::SystemTime>
         ) {
-            self::__hidden::add_generic(management, tags, fields, timestamp, add_gauge);
+            self::__hidden::add_generic(management, tags, fields, timestamp, gen::add_gauge);
         }
 
         fn record_counter<S: Into<String>>(
@@ -368,7 +370,7 @@ pub fn link_to_go(args: TokenStream, input: TokenStream) -> TokenStream {
             fields: &std::collections::HashMap<String, go_value>,
             timestamp: Option<&std::time::SystemTime>
         ) {
-            self::__hidden::add_generic(management, tags, fields, timestamp, add_counter);
+            self::__hidden::add_generic(management, tags, fields, timestamp, gen::add_counter);
         }
 
         fn record_summary<S: Into<String>>(
@@ -377,7 +379,7 @@ pub fn link_to_go(args: TokenStream, input: TokenStream) -> TokenStream {
             fields: &std::collections::HashMap<String, go_value>,
             timestamp: Option<&std::time::SystemTime>
         ) {
-            self::__hidden::add_generic(management, tags, fields, timestamp, add_summary);
+            self::__hidden::add_generic(management, tags, fields, timestamp, gen::add_summary);
         }
 
         fn record_histogram<S: Into<String>>(
@@ -386,13 +388,15 @@ pub fn link_to_go(args: TokenStream, input: TokenStream) -> TokenStream {
             fields: &std::collections::HashMap<String, go_value>,
             timestamp: Option<&std::time::SystemTime>
         ) {
-            self::__hidden::add_generic(management, tags, fields, timestamp, add_histogram);
+            self::__hidden::add_generic(management, tags, fields, timestamp, gen::add_histogram);
         }
     };
     let c_prelude: proc_macro2::TokenStream = syn::parse_str(include_str!("gen.rs")).unwrap();
 
     TokenStream::from(quote! {
-        #c_prelude
+        mod gen {
+            #c_prelude
+        }
         #fn_gather
         #telegraf_api_decl
         #fn_description
