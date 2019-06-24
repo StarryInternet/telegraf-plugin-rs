@@ -106,16 +106,6 @@ pub fn link_to_go(args: TokenStream, input: TokenStream) -> TokenStream {
     };
 
     let telegraf_api_decl: proc_macro2::TokenStream = parse_quote! {
-        #[repr(C)]
-        enum Type {
-            TYPE_INT = 0
-        }
-
-        #[repr(C)]
-        union Value {
-            int_: libc::c_int
-        }
-
         impl go_value {
             unsafe fn clone(&self) -> Self {
                 go_value {
