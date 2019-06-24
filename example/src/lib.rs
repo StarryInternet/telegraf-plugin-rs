@@ -36,31 +36,19 @@ macro_rules! map(
     };
 );
 
-type MeasurementFunc = fn(
-    std::string::String,
-    std::collections::HashMap<std::string::String, std::string::String>,
-    std::collections::HashMap<std::string::String, go_value>,
-    std::option::Option<std::time::SystemTime>
-);
-
 #[link_to_go("Description of the plugin", "<sample_config>")]
 fn collect_metric() {
-    let funcs: [(_, MeasurementFunc); 5] = [
-        ("rust-field", AddField as _),
-        ("rust-gauge", AddGauge as _),
-        ("rust-counter", AddCounter as _),
-        ("rust-summary", AddSummary as _),
-        ("rust-histogram", AddHistogram as _)
-    ];
-    for (measurement, add_func) in funcs.into_iter() {
-        let fields = map! {"rust_key".into() => "rust_value".into()};
-        let tags = map! {
-            "int".into() => 100i8.into(),
-            "uint".into() => 255u8.into(),
-            "double".into() => 3.1459.into(),
-            "bool".into() => (!false).into(),
-            "string".into() => "hello world".into()
-        };
-        add_func(measurement.to_string(), fields, tags, None)
-    }
+    let fields = map! {"rust_key".into() => "rust_value".into()};
+    let tags = map! {
+        "int".into() => 100i8.into(),
+        "uint".into() => 255u8.into(),
+        "double".into() => 3.1459.into(),
+        "bool".into() => (!false).into(),
+        "string".into() => "hello world".into()
+    };
+    record_field("rust-field", &fields, &tags, None);
+    record_gauge("rust-gauge", &fields, &tags, None);
+    record_counter("rust-counter", &fields, &tags, None);
+    record_summary("rust-summary", &fields, &tags, None);
+    record_histogram("rust-histogram", &fields, &tags, None);
 }

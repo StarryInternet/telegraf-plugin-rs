@@ -283,11 +283,11 @@ pub fn link_to_go(args: TokenStream, input: TokenStream) -> TokenStream {
         }
 
         mod __hidden {
-            pub fn add_generic(
-                management: String,
-                tags: std::collections::HashMap<String, String>,
-                fields: std::collections::HashMap<String, super::go_value>,
-                timestamp: Option<std::time::SystemTime>,
+            pub fn add_generic<S: Into<String>>(
+                management: S,
+                tags: &std::collections::HashMap<String, String>,
+                fields: &std::collections::HashMap<String, super::go_value>,
+                timestamp: Option<&std::time::SystemTime>,
                 add_func: unsafe extern "C" fn(
                     measurment: *mut libc::c_char,
                     tags: *mut super::tag,
@@ -297,14 +297,14 @@ pub fn link_to_go(args: TokenStream, input: TokenStream) -> TokenStream {
                     unix_sec: i64,
                     unix_nsec: i64)
             ) {
-                let management = std::ffi::CString::new(management).unwrap();
+                let management = std::ffi::CString::new(management.into()).unwrap();
 
                 let tags = tags
                     .into_iter()
                     .map(|(k, v)| {
                         (
-                            std::ffi::CString::new(k).expect("Not a C string"),
-                            std::ffi::CString::new(v).expect("Not a C string")
+                            std::ffi::CString::new(k.clone()).expect("Not a C string"),
+                            std::ffi::CString::new(v.clone()).expect("Not a C string")
                         )
                     })
                     .collect::<std::collections::HashMap<std::ffi::CString, std::ffi::CString>>();
@@ -317,9 +317,9 @@ pub fn link_to_go(args: TokenStream, input: TokenStream) -> TokenStream {
                 }
 
                 let fields = fields
-                    .into_iter()
-                    .map(|(k, v)| (std::ffi::CString::new(k).expect("Not a C string"), v))
-                    .collect::<std::collections::HashMap<std::ffi::CString, super::go_value>>();
+                    .iter()
+                    .map(|(k, v)| (std::ffi::CString::new(k.clone()).expect("Not a C string"), v))
+                    .collect::<std::collections::HashMap<std::ffi::CString, &super::go_value>>();
                 let mut fields_list = Vec::with_capacity(fields.len());
                 for (key, value) in fields.iter() {
                     fields_list.push(super::field {
@@ -330,7 +330,7 @@ pub fn link_to_go(args: TokenStream, input: TokenStream) -> TokenStream {
                         // This is safe because you can't safely clone a go_value, so there's only two
                         // copies here now, and we only drop it once because we will mem::forget
                         // the fields next.
-                        value: unsafe { value.clone() }
+                        value: unsafe { (*value).clone() }
                     })
                 }
 
@@ -354,47 +354,47 @@ pub fn link_to_go(args: TokenStream, input: TokenStream) -> TokenStream {
             }
         }
 
-        fn AddField(
-            management: String,
-            tags: std::collections::HashMap<String, String>,
-            fields: std::collections::HashMap<String, go_value>,
-            timestamp: Option<std::time::SystemTime>
+        fn record_field<S: Into<String>>(
+            management: S,
+            tags: &std::collections::HashMap<String, String>,
+            fields: &std::collections::HashMap<String, go_value>,
+            timestamp: Option<&std::time::SystemTime>
         ) {
             self::__hidden::add_generic(management, tags, fields, timestamp, add_field);
         }
 
-        fn AddGauge(
-            management: String,
-            tags: std::collections::HashMap<String, String>,
-            fields: std::collections::HashMap<String, go_value>,
-            timestamp: Option<std::time::SystemTime>
+        fn record_gauge<S: Into<String>>(
+            management: S,
+            tags: &std::collections::HashMap<String, String>,
+            fields: &std::collections::HashMap<String, go_value>,
+            timestamp: Option<&std::time::SystemTime>
         ) {
             self::__hidden::add_generic(management, tags, fields, timestamp, add_gauge);
         }
 
-        fn AddCounter(
-            management: String,
-            tags: std::collections::HashMap<String, String>,
-            fields: std::collections::HashMap<String, go_value>,
-            timestamp: Option<std::time::SystemTime>
+        fn record_counter<S: Into<String>>(
+            management: S,
+            tags: &std::collections::HashMap<String, String>,
+            fields: &std::collections::HashMap<String, go_value>,
+            timestamp: Option<&std::time::SystemTime>
         ) {
             self::__hidden::add_generic(management, tags, fields, timestamp, add_counter);
         }
 
-        fn AddSummary(
-            management: String,
-            tags: std::collections::HashMap<String, String>,
-            fields: std::collections::HashMap<String, go_value>,
-            timestamp: Option<std::time::SystemTime>
+        fn record_summary<S: Into<String>>(
+            management: S,
+            tags: &std::collections::HashMap<String, String>,
+            fields: &std::collections::HashMap<String, go_value>,
+            timestamp: Option<&std::time::SystemTime>
         ) {
             self::__hidden::add_generic(management, tags, fields, timestamp, add_summary);
         }
 
-        fn AddHistogram(
-            management: String,
-            tags: std::collections::HashMap<String, String>,
-            fields: std::collections::HashMap<String, go_value>,
-            timestamp: Option<std::time::SystemTime>
+        fn record_histogram<S: Into<String>>(
+            management: S,
+            tags: &std::collections::HashMap<String, String>,
+            fields: &std::collections::HashMap<String, go_value>,
+            timestamp: Option<&std::time::SystemTime>
         ) {
             self::__hidden::add_generic(management, tags, fields, timestamp, add_histogram);
         }
