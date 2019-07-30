@@ -4,3 +4,4 @@ Cargo.lock
 example/target/
 *.so
 *.a
+src/gen.rs

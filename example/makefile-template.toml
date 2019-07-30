@@ -1,0 +1,44 @@
+[tasks.rust_build]
+command = "cargo"
+args = ["build"]
+
+[tasks.copy_go_files]
+script = [
+'''
+cp target/debug/libtelegraf_plugin_example.a ./plugin.a
+cp telegraf-plugin-go-glue/lib.go ./
+cp telegraf-plugin-go-glue/c_api.h ./
+if [ -f plugin.so ]; then
+    rm plugin.so
+fi
+'''
+]
+
+[tasks.go_build]
+command = "go"
+args = ["build", "-buildmode=plugin", "-o=plugin.so"]
+dependencies = ["rust_build", "copy_go_files"]
+
+[tasks.cleanup]
+script = [
+'''
+rm plugin.a
+rm lib.go
+rm c_api.h
+if [ -f plugin.so ]; then
+    chmod a+x plugin.so
+fi
+'''
+]
+
+# This must run after the Rust build,
+# so that it can link the Rust artifact to it.
+[tasks.build]
+dependencies = [
+    "rust_build",
+    "go_build",
+    "cleanup"
+]
+
+[config]
+on_error_task = "cleanup"
